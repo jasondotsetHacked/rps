@@ -133,6 +133,27 @@ describe("RockPaperScissors", function () {
     expect(game.state).to.equal(3);
   });
 
+  it("should forfeit to revealer if opponent doesn't reveal before timeout", async () => {
+    const commit1 = commitHash(1, salt1); // Rock
+    await rps.connect(p1).createGame(commit1, { value: wager });
+    const commit2 = commitHash(2, salt2); // Paper
+    await rps.connect(p2).joinGame(0, commit2, { value: wager });
+
+    // p1 reveals first
+    await rps.connect(p1).reveal(0, 1, salt1);
+
+    // advance time past reveal timeout
+    await network.provider.send("evm_increaseTime", [86400 + 1]);
+    await network.provider.send("evm_mine");
+
+    await expect(rps.connect(p1).cancelGame(0))
+      .to.emit(rps, "GameSettled").withArgs(0, p1.address, wager * 2n)
+      .and.to.emit(rps, "GameCancelled").withArgs(0, p1.address);
+
+    const game = await rps.games(0);
+    expect(game.state).to.equal(3);
+  });
+
   it("should revert on invalid reveals or joins", async () => {
     // non-existent game
     await expect(rps.connect(p1).joinGame(5, ethers.ZeroHash, { value: wager }))

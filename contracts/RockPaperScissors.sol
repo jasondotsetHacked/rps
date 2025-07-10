@@ -138,10 +138,21 @@ contract RockPaperScissors {
             require(sent1, "Refund failed");
         } else if (g.state == GameState.Committed) {
             require(block.timestamp >= g.joinedAt + REVEAL_TIMEOUT, "Too early to cancel");
-            (bool sent1, ) = payable(g.player1).call{value: g.wager}("");
-            require(sent1, "Refund failed");
-            (bool sent2, ) = payable(g.player2).call{value: g.wager}("");
-            require(sent2, "Refund failed");
+            // if one player revealed and the other didn't, the revealer wins the pot
+            if (g.reveal1 != Move.None && g.reveal2 == Move.None) {
+                (bool sent, ) = payable(g.player1).call{value: g.wager * 2}("");
+                require(sent, "Payout failed");
+                emit GameSettled(gameId, g.player1, g.wager * 2);
+            } else if (g.reveal2 != Move.None && g.reveal1 == Move.None) {
+                (bool sent, ) = payable(g.player2).call{value: g.wager * 2}("");
+                require(sent, "Payout failed");
+                emit GameSettled(gameId, g.player2, g.wager * 2);
+            } else {
+                (bool sent1, ) = payable(g.player1).call{value: g.wager}("");
+                require(sent1, "Refund failed");
+                (bool sent2, ) = payable(g.player2).call{value: g.wager}("");
+                require(sent2, "Refund failed");
+            }
         } else {
             revert("Cannot cancel");
         }
