@@ -4,13 +4,13 @@ const { ethers, network } = require("hardhat");
 describe("RockPaperScissors", function () {
   let RPS, rps;
   let owner, p1, p2, p3;
-  const wager = ethers.utils.parseEther("1");
+  const wager = ethers.parseEther("1");
   const salt1 = "abc123";
   const salt2 = "xyz789";
 
   function commitHash(move, salt) {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(["uint8", "string"], [move, salt])
+    return ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(["uint8", "string"], [move, salt])
     );
   }
 
