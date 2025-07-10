@@ -9,16 +9,14 @@ describe("RockPaperScissors", function () {
   const salt2 = "xyz789";
 
   function commitHash(move, salt) {
-    return ethers.keccak256(
-      ethers.AbiCoder.defaultAbiCoder().encode(["uint8", "string"], [move, salt])
-    );
+    return ethers.solidityPackedKeccak256(["uint8", "string"], [move, salt]);
   }
 
   beforeEach(async () => {
     [owner, p1, p2, p3] = await ethers.getSigners();
     RPS = await ethers.getContractFactory("RockPaperScissors");
     rps = await RPS.deploy();
-    await rps.deployed();
+    await rps.waitForDeployment();
   });
 
   it("should let player1 create and emit event", async () => {
@@ -68,7 +66,7 @@ describe("RockPaperScissors", function () {
       .to.emit(rps, "MoveRevealed").withArgs(0, p1.address, 1);
     await expect(rps.connect(p2).reveal(0, 3, salt2))
       .to.emit(rps, "MoveRevealed").withArgs(0, p2.address, 3)
-      .and.to.emit(rps, "GameSettled").withArgs(0, p1.address, wager.mul(2));
+      .and.to.emit(rps, "GameSettled").withArgs(0, p1.address, wager * 2n);
 
     const bal1After = await ethers.provider.getBalance(p1.address);
     expect(bal1After).to.be.gt(bal1Before);
@@ -87,8 +85,8 @@ describe("RockPaperScissors", function () {
     const bal2Before = await ethers.provider.getBalance(p2.address);
 
     await rps.connect(p1).reveal(0, 2, salt1);
-    await expect(rps.connect(p2).reveal(0, 2, salt2))
-      .to.emit(rps, "GameSettled").withArgs(0, ethers.constants.AddressZero, wager);
+      await expect(rps.connect(p2).reveal(0, 2, salt2))
+        .to.emit(rps, "GameSettled").withArgs(0, ethers.ZeroAddress, wager);
 
     const bal1After = await ethers.provider.getBalance(p1.address);
     const bal2After = await ethers.provider.getBalance(p2.address);
@@ -137,7 +135,7 @@ describe("RockPaperScissors", function () {
 
   it("should revert on invalid reveals or joins", async () => {
     // non-existent game
-    await expect(rps.connect(p1).joinGame(5, "0x00", { value: wager }))
+    await expect(rps.connect(p1).joinGame(5, ethers.ZeroHash, { value: wager }))
       .to.be.revertedWith("No such game");
 
     const commit1 = commitHash(1, salt1);
