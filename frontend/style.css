@@ -99,3 +99,8 @@ button {
 .error {
     color: red;
 }
+
+.salt {
+    margin-top: 5px;
+    font-style: italic;
+}

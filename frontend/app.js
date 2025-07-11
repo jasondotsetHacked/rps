@@ -1,6 +1,18 @@
 let provider, signer, contract, abi, contractAddress;
 let currentGameId;
 
+function saveCommitment(id, player, move, salt) {
+  const key = `game-${id}-${player}`;
+  const data = { move, salt };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function loadCommitment(id, player) {
+  const key = `game-${id}-${player}`;
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
+}
+
 function moveName(m) {
   return ['None', 'Rock', 'Paper', 'Scissors'][m] || 'Unknown';
 }
@@ -57,7 +69,8 @@ async function createGame() {
     const tx = await contract.createGame(commit, { value: ethers.parseEther(wager) });
     const receipt = await tx.wait();
     const gameId = receipt.logs[0].args.gameId;
-    document.getElementById('create-result').textContent = `Game ${gameId} created. Save this salt for reveal: ${salt}`;
+    saveCommitment(gameId, signer.address, move, salt);
+    document.getElementById('create-result').textContent = `Game ${gameId} created. Salt stored locally: ${salt}`;
     await showGame(gameId);
   } catch (err) {
     document.getElementById('create-result').textContent = err.message;
@@ -95,7 +108,8 @@ async function joinGame(id, move, customSalt) {
     const wager = await contract.games(id).then(g => g.wager);
     const tx = await contract.joinGame(id, commit, { value: wager });
     await tx.wait();
-    document.getElementById('room-status').textContent = `Joined! Save salt: ${salt}`;
+    saveCommitment(id, signer.address, move, salt);
+    document.getElementById('room-status').textContent = `Joined! Salt stored locally: ${salt}`;
     await showGame(id);
   } catch (err) {
     document.getElementById('room-status').textContent = err.message;
@@ -130,10 +144,22 @@ async function showGame(id) {
   currentGameId = Number(id);
   const g = await contract.games(id);
 
+  const saved1 = loadCommitment(id, g.player1);
+  const saved2 = loadCommitment(id, g.player2);
+
   document.getElementById('room-id').textContent = id;
   document.getElementById('room-status').textContent = statusName(Number(g.state));
   document.getElementById('player1-info').textContent = g.player1 + (Number(g.reveal1) ? ' - ' + moveName(Number(g.reveal1)) : '');
   document.getElementById('player2-info').textContent = (g.player2 === ethers.ZeroAddress ? 'Waiting for player 2' : g.player2) + (Number(g.reveal2) ? ' - ' + moveName(Number(g.reveal2)) : '');
+
+  document.getElementById('player1-salt').textContent = '';
+  document.getElementById('player2-salt').textContent = '';
+  if (signer.address === g.player1 && saved1 && Number(g.reveal1) === 0) {
+    document.getElementById('player1-salt').textContent = 'Your salt: ' + saved1.salt;
+  }
+  if (signer.address === g.player2 && saved2 && Number(g.reveal2) === 0) {
+    document.getElementById('player2-salt').textContent = 'Your salt: ' + saved2.salt;
+  }
 
   document.getElementById('player1-action').innerHTML = '';
   document.getElementById('player2-action').innerHTML = '';
