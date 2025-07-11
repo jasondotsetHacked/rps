@@ -50,7 +50,8 @@ async function createGame() {
   if (!contract) return alert('Contract not connected');
   const move = Number(document.getElementById('create-move').value);
   const wager = document.getElementById('create-wager').value;
-  const salt = randomSalt();
+  const customSalt = document.getElementById('create-salt').value.trim();
+  const salt = customSalt || randomSalt();
   const commit = ethers.keccak256(ethers.solidityPacked(['uint8', 'string'], [move, salt]));
   try {
     const tx = await contract.createGame(commit, { value: ethers.parseEther(wager) });
@@ -87,8 +88,8 @@ async function loadGames(filter = 'all') {
   });
 }
 
-async function joinGame(id, move) {
-  const salt = randomSalt();
+async function joinGame(id, move, customSalt) {
+  const salt = customSalt && customSalt.trim() ? customSalt.trim() : randomSalt();
   const commit = ethers.keccak256(ethers.solidityPacked(['uint8', 'string'], [move, salt]));
   try {
     const wager = await contract.games(id).then(g => g.wager);
@@ -145,8 +146,13 @@ async function showGame(id) {
         <option value="3">Scissors</option>
       </select>
     </label>
+    <label>Salt: <input id="join-salt" type="text" placeholder="leave blank for random"></label>
     <button id="join-btn">Join</button>`;
-    document.getElementById('join-btn').onclick = () => joinGame(id, Number(document.getElementById('join-move').value));
+    document.getElementById('join-btn').onclick = () => joinGame(
+      id,
+      Number(document.getElementById('join-move').value),
+      document.getElementById('join-salt').value
+    );
   } else if (Number(g.state) === 1) {
     if (signer.address === g.player1 && Number(g.reveal1) === 0) {
       document.getElementById('player1-action').innerHTML = revealForm('1');
