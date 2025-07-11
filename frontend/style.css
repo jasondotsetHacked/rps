@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+label {
+    display: block;
+    margin-top: 10px;
+}
+button {
+    margin-top: 10px;
+}
+#account {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.result {
+    margin-top: 5px;
+    color: green;
+}
+.error {
+    color: red;
+}
