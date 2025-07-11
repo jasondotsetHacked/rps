@@ -47,7 +47,10 @@ async function connect() {
   provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send('eth_requestAccounts', []);
   signer = await provider.getSigner();
-  document.getElementById('account').textContent = 'Account: ' + signer.address;
+  const bal = await provider.getBalance(signer.address);
+  const eth = ethers.formatEther(bal);
+  document.getElementById('account').textContent =
+    'Account: ' + signer.address + ' - Balance: ' + eth + ' ETH';
   if (contractAddress) {
     contract = new ethers.Contract(contractAddress, abi, signer);
     showSection('menu');
@@ -83,11 +86,14 @@ async function loadGames(filter = 'all') {
   const list = [];
   for (let i = 0; i < count; i++) {
     const g = await contract.games(i);
-    if (Number(g.state) === 3) continue;
+    const state = Number(g.state);
     const mine = signer && (signer.address === g.player1 || signer.address === g.player2);
-    if (filter === 'open' && Number(g.state) !== 0) continue;
-    if (filter === 'mine' && !mine) continue;
-    list.push({ id: i, wager: ethers.formatEther(g.wager), state: Number(g.state) });
+    if (filter === 'open' && state !== 0) continue;
+    if (filter === 'mine' && (!mine || state === 3)) continue;
+    if (filter === 'finished' && state !== 3) continue;
+    if (filter === 'mine-finished' && (!mine || state !== 3)) continue;
+    if (filter === 'all' && state === 3) continue;
+    list.push({ id: i, wager: ethers.formatEther(g.wager), state });
   }
   let html = '<table><tr><th>ID</th><th>Wager (ETH)</th><th>Status</th></tr>';
   list.forEach(g => {
@@ -211,4 +217,6 @@ window.addEventListener('load', async () => {
   document.getElementById('filter-all').onclick = () => setFilter('filter-all', 'all');
   document.getElementById('filter-open').onclick = () => setFilter('filter-open', 'open');
   document.getElementById('filter-mine').onclick = () => setFilter('filter-mine', 'mine');
+  document.getElementById('filter-finished').onclick = () => setFilter('filter-finished', 'finished');
+  document.getElementById('filter-mine-finished').onclick = () => setFilter('filter-mine-finished', 'mine-finished');
 });
