@@ -14,55 +14,57 @@
     <button id="connect">Connect Wallet</button>
     <div id="account"></div>
 
-    <h2>Create Game</h2>
-    <label>Move:
-        <select id="create-move">
-            <option value="1">Rock</option>
-            <option value="2">Paper</option>
-            <option value="3">Scissors</option>
-        </select>
-    </label>
-    <label>Wager (ETH): <input id="create-wager" type="number" min="0" step="0.01"></label>
-    <button id="create">Create</button>
-    <div id="create-result"></div>
-
-    <h2>Join Game</h2>
-    <label>Game ID: <input id="join-id" type="number" min="0"></label>
-    <label>Move:
-        <select id="join-move">
-            <option value="1">Rock</option>
-            <option value="2">Paper</option>
-            <option value="3">Scissors</option>
-        </select>
-    </label>
-    <button id="join">Join</button>
-    <div id="join-result"></div>
-
-    <h2>Reveal Move</h2>
-    <label>Game ID: <input id="reveal-id" type="number" min="0"></label>
-    <label>Move:
-        <select id="reveal-move">
-            <option value="1">Rock</option>
-            <option value="2">Paper</option>
-            <option value="3">Scissors</option>
-        </select>
-    </label>
-    <label>Salt: <input id="reveal-salt" type="text"></label>
-    <button id="reveal">Reveal</button>
-    <div id="reveal-result"></div>
-
-    <h2>Cancel Game</h2>
-    <label>Game ID: <input id="cancel-id" type="number" min="0"></label>
-    <button id="cancel">Cancel</button>
-    <div id="cancel-result"></div>
-
-    <h2>Games</h2>
-    <div class="tabs">
-        <button id="tab-active" class="tab active">Active Games</button>
-        <button id="tab-completed" class="tab">Completed Games</button>
+    <div id="menu" class="section" style="display:none">
+        <button id="btn-new-game" class="big-btn">Start New Game</button>
+        <button id="btn-view-games" class="big-btn">View Active Games</button>
     </div>
-    <div id="active-games" class="games-list"></div>
-    <div id="completed-games" class="games-list" style="display:none"></div>
+
+    <div id="create-section" class="section" style="display:none">
+        <h2>Create Game</h2>
+        <label>Move:
+            <select id="create-move">
+                <option value="1">Rock</option>
+                <option value="2">Paper</option>
+                <option value="3">Scissors</option>
+            </select>
+        </label>
+        <label>Wager (ETH): <input id="create-wager" type="number" min="0" step="0.01"></label>
+        <label>Salt (optional): <input id="create-salt" type="text" placeholder="leave blank for random"></label>
+        <button id="create">Create</button>
+        <div id="create-result" class="result"></div>
+        <button id="create-back" class="back">Back</button>
+    </div>
+
+    <div id="games-page" class="section" style="display:none">
+        <h2>Active Games</h2>
+        <div class="tabs">
+            <button id="filter-all" class="tab active">All</button>
+            <button id="filter-open" class="tab">Waiting</button>
+            <button id="filter-mine" class="tab">My Games</button>
+        </div>
+        <div id="games-list" class="games-list"></div>
+        <button id="games-back" class="back">Back</button>
+    </div>
+
+    <div id="game-room" class="section" style="display:none">
+        <h2>Game <span id="room-id"></span></h2>
+        <div class="room">
+            <div class="player-col">
+                <h3>Player 1</h3>
+                <div id="player1-info"></div>
+                <div id="player1-salt" class="salt"></div>
+                <div id="player1-action"></div>
+            </div>
+            <div class="player-col">
+                <h3>Player 2</h3>
+                <div id="player2-info"></div>
+                <div id="player2-salt" class="salt"></div>
+                <div id="player2-action"></div>
+            </div>
+        </div>
+        <div id="room-status"></div>
+        <button id="room-back" class="back">Back</button>
+    </div>
 
     <script src="app.js"></script>
 </body>
