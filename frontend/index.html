@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Scissors</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.min.js"></script>
+</head>
+<body>
+<h1>Rock Paper Scissors</h1>
+<button id="connect">Connect Wallet</button>
+<div id="account"></div>
+
+<h2>Create Game</h2>
+<label>Move:
+<select id="create-move">
+<option value="1">Rock</option>
+<option value="2">Paper</option>
+<option value="3">Scissors</option>
+</select>
+</label>
+<label>Wager (ETH): <input id="create-wager" type="number" min="0" step="0.01"></label>
+<button id="create">Create</button>
+<div id="create-result"></div>
+
+<h2>Join Game</h2>
+<label>Game ID: <input id="join-id" type="number" min="0"></label>
+<label>Move:
+<select id="join-move">
+<option value="1">Rock</option>
+<option value="2">Paper</option>
+<option value="3">Scissors</option>
+</select>
+</label>
+<button id="join">Join</button>
+<div id="join-result"></div>
+
+<h2>Reveal Move</h2>
+<label>Game ID: <input id="reveal-id" type="number" min="0"></label>
+<label>Move:
+<select id="reveal-move">
+<option value="1">Rock</option>
+<option value="2">Paper</option>
+<option value="3">Scissors</option>
+</select>
+</label>
+<label>Salt: <input id="reveal-salt" type="text"></label>
+<button id="reveal">Reveal</button>
+<div id="reveal-result"></div>
+
+<h2>Cancel Game</h2>
+<label>Game ID: <input id="cancel-id" type="number" min="0"></label>
+<button id="cancel">Cancel</button>
+<div id="cancel-result"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
