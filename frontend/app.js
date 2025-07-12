@@ -1,16 +1,41 @@
 let provider, signer, contract, abi, contractAddress;
 let currentGameId;
 
-function saveCommitment(id, player, move, salt) {
-  const key = `game-${id}-${player}`;
-  const data = { move, salt };
-  localStorage.setItem(key, JSON.stringify(data));
+let dbPromise;
+
+function getDb() {
+  if (!dbPromise) {
+    dbPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open('rps-db', 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore('commitments', { keyPath: 'key' });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  return dbPromise;
 }
 
-function loadCommitment(id, player) {
-  const key = `game-${id}-${player}`;
-  const item = localStorage.getItem(key);
-  return item ? JSON.parse(item) : null;
+async function saveCommitment(id, player, move, salt) {
+  const db = await getDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('commitments', 'readwrite');
+    tx.objectStore('commitments').put({ key: `game-${id}-${player}`, move, salt });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function loadCommitment(id, player) {
+  if (!signer || signer.address !== player) return null;
+  const db = await getDb();
+  return new Promise((resolve) => {
+    const tx = db.transaction('commitments', 'readonly');
+    const req = tx.objectStore('commitments').get(`game-${id}-${player}`);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => resolve(null);
+  });
 }
 
 function moveName(m) {
@@ -72,7 +97,7 @@ async function createGame() {
     const tx = await contract.createGame(commit, { value: ethers.parseEther(wager) });
     const receipt = await tx.wait();
     const gameId = receipt.logs[0].args.gameId;
-    saveCommitment(gameId, signer.address, move, salt);
+    await saveCommitment(gameId, signer.address, move, salt);
     document.getElementById('create-result').textContent = `Game ${gameId} created. Salt stored locally: ${salt}`;
     await showGame(gameId);
   } catch (err) {
@@ -114,7 +139,7 @@ async function joinGame(id, move, customSalt) {
     const wager = await contract.games(id).then(g => g.wager);
     const tx = await contract.joinGame(id, commit, { value: wager });
     await tx.wait();
-    saveCommitment(id, signer.address, move, salt);
+    await saveCommitment(id, signer.address, move, salt);
     document.getElementById('room-status').textContent = `Joined! Salt stored locally: ${salt}`;
     await showGame(id);
   } catch (err) {
@@ -150,21 +175,25 @@ async function showGame(id) {
   currentGameId = Number(id);
   const g = await contract.games(id);
 
-  const saved1 = loadCommitment(id, g.player1);
-  const saved2 = loadCommitment(id, g.player2);
+  const saved1 = await loadCommitment(id, g.player1);
+  const saved2 = await loadCommitment(id, g.player2);
 
   document.getElementById('room-id').textContent = id;
   document.getElementById('room-status').textContent = statusName(Number(g.state));
   document.getElementById('player1-info').textContent = g.player1 + (Number(g.reveal1) ? ' - ' + moveName(Number(g.reveal1)) : '');
   document.getElementById('player2-info').textContent = (g.player2 === ethers.ZeroAddress ? 'Waiting for player 2' : g.player2) + (Number(g.reveal2) ? ' - ' + moveName(Number(g.reveal2)) : '');
 
-  document.getElementById('player1-salt').textContent = '';
-  document.getElementById('player2-salt').textContent = '';
+  document.getElementById("player1-salt").textContent = "";
+  document.getElementById("player1-move").textContent = "";
+  document.getElementById("player2-salt").textContent = "";
+  document.getElementById("player2-move").textContent = "";
   if (signer.address === g.player1 && saved1 && Number(g.reveal1) === 0) {
-    document.getElementById('player1-salt').textContent = 'Your salt: ' + saved1.salt;
+    document.getElementById("player1-salt").textContent = "Your salt: " + saved1.salt;
+    document.getElementById("player1-move").textContent = "Your move: " + moveName(Number(saved1.move));
   }
   if (signer.address === g.player2 && saved2 && Number(g.reveal2) === 0) {
-    document.getElementById('player2-salt').textContent = 'Your salt: ' + saved2.salt;
+    document.getElementById("player2-salt").textContent = "Your salt: " + saved2.salt;
+    document.getElementById("player2-move").textContent = "Your move: " + moveName(Number(saved2.move));
   }
 
   document.getElementById('player1-action').innerHTML = '';
