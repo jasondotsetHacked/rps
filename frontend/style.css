@@ -91,6 +91,8 @@ button {
 .games-list th, .games-list td {
     border: 1px solid #ccc;
     padding: 4px 8px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .game-row {
@@ -109,22 +111,32 @@ button {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .result {
     margin-top: 5px;
     color: green;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .error {
     color: red;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .salt {
     margin-top: 5px;
     font-style: italic;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 .move {
     margin-top: 5px;
     font-style: italic;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
