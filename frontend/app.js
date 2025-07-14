@@ -163,15 +163,15 @@ function revealForm(num) {
   <div class="move-options" id="rev-move${num}">
     <label>
       <input type="radio" name="rev-move${num}" value="1" checked>
-      <img src="https://openclipart.org/image/200px/311897" alt="Rock">Rock
+      <img src="https://openclipart.org/image/800px/34093" alt="Rock">Rock
     </label>
     <label>
       <input type="radio" name="rev-move${num}" value="2">
-      <img src="https://openclipart.org/image/200px/311898" alt="Paper">Paper
+      <img src="https://openclipart.org/image/800px/32731" alt="Paper">Paper
     </label>
     <label>
       <input type="radio" name="rev-move${num}" value="3">
-      <img src="https://openclipart.org/image/200px/311899" alt="Scissors">Scissors
+      <img src="https://openclipart.org/image/800px/34231" alt="Scissors">Scissors
     </label>
   </div>
   <label>Salt: <input id="rev-salt${num}" type="text"></label>
@@ -212,15 +212,15 @@ async function showGame(id) {
     <div class="move-options" id="join-move">
       <label>
         <input type="radio" name="join-move" value="1" checked>
-        <img src="https://openclipart.org/image/200px/311897" alt="Rock">Rock
+        <img src="https://openclipart.org/image/800px/34093" alt="Rock">Rock
       </label>
       <label>
         <input type="radio" name="join-move" value="2">
-        <img src="https://openclipart.org/image/200px/311898" alt="Paper">Paper
+        <img src="https://openclipart.org/image/800px/32731" alt="Paper">Paper
       </label>
       <label>
         <input type="radio" name="join-move" value="3">
-        <img src="https://openclipart.org/image/200px/311899" alt="Scissors">Scissors
+        <img src="https://openclipart.org/image/800px/34231" alt="Scissors">Scissors
       </label>
     </div>
     <label>Salt: <input id="join-salt" type="text" placeholder="leave blank for random"></label>
