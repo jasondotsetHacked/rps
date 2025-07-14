@@ -22,13 +22,24 @@
 
     <div id="create-section" class="section" style="display:none">
         <h2>Create Game</h2>
-        <label>Move:
-            <select id="create-move">
-                <option value="1">Rock</option>
-                <option value="2">Paper</option>
-                <option value="3">Scissors</option>
-            </select>
-        </label>
+        <label>Move:</label>
+        <div class="move-options" id="create-move">
+            <label>
+                <input type="radio" name="create-move" value="1" checked>
+                <img src="https://openclipart.org/image/200px/311897" alt="Rock">
+                Rock
+            </label>
+            <label>
+                <input type="radio" name="create-move" value="2">
+                <img src="https://openclipart.org/image/200px/311898" alt="Paper">
+                Paper
+            </label>
+            <label>
+                <input type="radio" name="create-move" value="3">
+                <img src="https://openclipart.org/image/200px/311899" alt="Scissors">
+                Scissors
+            </label>
+        </div>
         <label>Wager (ETH): <input id="create-wager" type="number" min="0" step="0.01"></label>
         <label>Salt (optional): <input id="create-salt" type="text" placeholder="leave blank for random"></label>
         <button id="create">Create</button>
