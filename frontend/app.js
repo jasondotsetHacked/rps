@@ -88,7 +88,7 @@ function randomSalt() {
 
 async function createGame() {
   if (!contract) return alert('Contract not connected');
-  const move = Number(document.getElementById('create-move').value);
+  const move = Number(document.querySelector('input[name="create-move"]:checked').value);
   const wager = document.getElementById('create-wager').value;
   const customSalt = document.getElementById('create-salt').value.trim();
   const salt = customSalt || randomSalt();
@@ -159,13 +159,21 @@ async function revealMove(id, move, salt) {
 }
 
 function revealForm(num) {
-  return `<label>Move:
-    <select id="rev-move${num}">
-      <option value="1">Rock</option>
-      <option value="2">Paper</option>
-      <option value="3">Scissors</option>
-    </select>
-  </label>
+  return `<label>Move:</label>
+  <div class="move-options" id="rev-move${num}">
+    <label>
+      <input type="radio" name="rev-move${num}" value="1" checked>
+      <img src="https://openclipart.org/image/800px/34093" alt="Rock">Rock
+    </label>
+    <label>
+      <input type="radio" name="rev-move${num}" value="2">
+      <img src="https://openclipart.org/image/800px/32731" alt="Paper">Paper
+    </label>
+    <label>
+      <input type="radio" name="rev-move${num}" value="3">
+      <img src="https://openclipart.org/image/800px/34231" alt="Scissors">Scissors
+    </label>
+  </div>
   <label>Salt: <input id="rev-salt${num}" type="text"></label>
   <button id="reveal-btn${num}">Reveal</button>`;
 }
@@ -200,28 +208,44 @@ async function showGame(id) {
   document.getElementById('player2-action').innerHTML = '';
 
   if (Number(g.state) === 0 && signer.address !== g.player1 && g.player2 === ethers.ZeroAddress) {
-    document.getElementById('player2-action').innerHTML = `<label>Move:
-      <select id="join-move">
-        <option value="1">Rock</option>
-        <option value="2">Paper</option>
-        <option value="3">Scissors</option>
-      </select>
-    </label>
+    document.getElementById('player2-action').innerHTML = `<label>Move:</label>
+    <div class="move-options" id="join-move">
+      <label>
+        <input type="radio" name="join-move" value="1" checked>
+        <img src="https://openclipart.org/image/800px/34093" alt="Rock">Rock
+      </label>
+      <label>
+        <input type="radio" name="join-move" value="2">
+        <img src="https://openclipart.org/image/800px/32731" alt="Paper">Paper
+      </label>
+      <label>
+        <input type="radio" name="join-move" value="3">
+        <img src="https://openclipart.org/image/800px/34231" alt="Scissors">Scissors
+      </label>
+    </div>
     <label>Salt: <input id="join-salt" type="text" placeholder="leave blank for random"></label>
     <button id="join-btn">Join</button>`;
     document.getElementById('join-btn').onclick = () => joinGame(
       id,
-      Number(document.getElementById('join-move').value),
+      Number(document.querySelector('input[name="join-move"]:checked').value),
       document.getElementById('join-salt').value
     );
   } else if (Number(g.state) === 1) {
     if (signer.address === g.player1 && Number(g.reveal1) === 0) {
       document.getElementById('player1-action').innerHTML = revealForm('1');
-      document.getElementById('reveal-btn1').onclick = () => revealMove(id, Number(document.getElementById('rev-move1').value), document.getElementById('rev-salt1').value);
+      document.getElementById('reveal-btn1').onclick = () => revealMove(
+        id,
+        Number(document.querySelector('input[name="rev-move1"]:checked').value),
+        document.getElementById('rev-salt1').value
+      );
     }
     if (signer.address === g.player2 && Number(g.reveal2) === 0) {
       document.getElementById('player2-action').innerHTML = revealForm('2');
-      document.getElementById('reveal-btn2').onclick = () => revealMove(id, Number(document.getElementById('rev-move2').value), document.getElementById('rev-salt2').value);
+      document.getElementById('reveal-btn2').onclick = () => revealMove(
+        id,
+        Number(document.querySelector('input[name="rev-move2"]:checked').value),
+        document.getElementById('rev-salt2').value
+      );
     }
   }
 
